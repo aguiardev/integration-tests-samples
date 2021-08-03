@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
-namespace MyEcommerce
+namespace MyEcommerce.Api
 {
     public class Startup
     {

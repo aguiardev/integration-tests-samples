@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace MyEcommerce
+namespace MyEcommerce.Api
 {
     public class Program
     {
