@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyEcommerce.Api.Models;
@@ -9,7 +10,7 @@ using MyEcommerce.Api.Models;
 namespace MyEcommerce.Controllers.Api
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
         private readonly ILogger<CustomerController> _logger;
