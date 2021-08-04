@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyEcommerce.Api.Models;
+using MyEcommerce.Api.Entities;
 
 namespace MyEcommerce.Api.Repositories
 {

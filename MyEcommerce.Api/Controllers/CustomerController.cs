@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MyEcommerce.Api.Entities;
 using MyEcommerce.Api.Models;
 using MyEcommerce.Api.Repositories.Interface;
 using System.ComponentModel;

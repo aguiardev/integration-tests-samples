@@ -1,6 +1,6 @@
 using System;
 
-namespace MyEcommerce.Api.Models
+namespace MyEcommerce.Api.Entities
 {
     public class Customer
     {

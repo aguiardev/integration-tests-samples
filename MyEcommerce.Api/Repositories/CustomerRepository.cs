@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyEcommerce.Api.Models;
+using MyEcommerce.Api.Entities;
 using MyEcommerce.Api.Repositories.Interface;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -10,7 +10,7 @@ namespace MyEcommerce.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController : ControllerBase
+    public class UserController : ControllerBase
     {
         [HttpPost]
         [AllowAnonymous]
@@ -21,7 +21,7 @@ namespace MyEcommerce.Api.Controllers
 
             // Verifica se o usuário existe
             if (user == null)
-                return NotFound(new { message = "Usuário ou senha inválidos" });
+                return NotFound(new { message = "Invalid user or password" });
 
             // Gera o Token
             var token = TokenService.GenerateToken(user);
