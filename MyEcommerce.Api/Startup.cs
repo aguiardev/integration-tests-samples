@@ -8,12 +8,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MyEcommerce.Api.Repositories;
+using MyEcommerce.Api.Repositories.Interface;
 
 namespace MyEcommerce.Api
 {
@@ -32,6 +35,10 @@ namespace MyEcommerce.Api
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
             
             services.AddControllers();
+            services.AddDbContext<MyEcommerceContext>(opt =>
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddCors();
             services.AddSwaggerGen(c =>
             {

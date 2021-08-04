@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyEcommerce.Api.Models;
+using MyEcommerce.Api.Repositories.Interface;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyEcommerce.Controllers.Api
 {
@@ -19,40 +18,79 @@ namespace MyEcommerce.Controllers.Api
     public class CustomerController : ControllerBase
     {
         private readonly ILogger<CustomerController> _logger;
+        private readonly ICustomerRepository _customerRepository;
 
-        public CustomerController(ILogger<CustomerController> logger)
+        public CustomerController(
+            ILogger<CustomerController> logger,
+            ICustomerRepository customerRepository)
         {
             _logger = logger;
+            _customerRepository = customerRepository;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok();
+            var customers = await _customerRepository.GetAll();
+            
+            return customers == null || !customers.Any()
+                ? NotFound()
+                : Ok(customers);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            return Ok();
+            if(id <= 0)
+                return BadRequest("Invalid customer id");
+
+            var customer = await _customerRepository.GetById(id);
+            
+            return customer == null
+                ? NotFound()
+                : Ok(customer);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Customer customer)
+        public async Task<IActionResult> Post([FromBody] Customer customer)
         {
-            return Ok();
+            await _customerRepository.Create(customer);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = customer.Id },
+                customer
+            );
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Customer customer)
+        public async Task<IActionResult> Put(int id, [FromBody] Customer customer)
         {
-            return Ok();
+            if(id <= 0)
+                return BadRequest("Invalid customer id");
+
+            var currentCustomer = await _customerRepository.GetById(id);
+            if(currentCustomer == null)
+                return NotFound();
+
+            await _customerRepository.Update(id, customer);
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return Ok();
+            if(id <= 0)
+                return BadRequest("Invalid customer id");
+
+            var currentCustomer = await _customerRepository.GetById(id);
+            if(currentCustomer == null)
+                return NotFound();
+
+            await _customerRepository.Delete(id);
+
+            return NoContent();
         }
     }
 }
