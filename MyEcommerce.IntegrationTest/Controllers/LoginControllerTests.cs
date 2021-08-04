@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,8 +24,8 @@ namespace MyEcommerce.IntegrationTest.Controllers
             _output = output;
         }
 
-        [Fact]
-        public void Authenticate_UsingValidUserAndPassword_ReturnSucess()
+        [Fact(DisplayName = "Authenticate Using Valid User And Password Return Success")]
+        public async Task Authenticate_UsingValidUserAndPassword_ReturnSuccess()
         {
             var user = new User
             {
@@ -38,9 +39,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
                 "application/json"
             );
 
-            var httpClientRequest = _httpClient.PostAsync("api/login", content)
-                .GetAwaiter()
-                .GetResult();
+            var httpClientRequest = await _httpClient.PostAsync("api/login", content);
 
             Assert.Equal(HttpStatusCode.OK, httpClientRequest.StatusCode);
         }
