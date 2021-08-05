@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using MyEcommerce.Api;
 using MyEcommerce.Api.Models;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -13,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace MyEcommerce.IntegrationTest.Controllers
 {
-    public class UserControllerTests : IClassFixture<WebApplicationFactory<Startup>>, IAsyncLifetime
+    public class UserControllerTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private const string _url = "api/user/login";
         protected readonly WebApplicationFactory<Startup> _factory;
@@ -25,18 +23,6 @@ namespace MyEcommerce.IntegrationTest.Controllers
             _factory = factory;
             _httpClient = _factory.CreateClient();
             _output = output;
-        }
-
-        public Task DisposeAsync()
-        {
-            _httpClient.Dispose();
-
-            return Task.CompletedTask;
-        }
-
-        public async Task InitializeAsync()
-        {
-            await Authenticate_UsingValidUserAndPassword_ReturnSuccess();
         }
 
         [Fact(DisplayName = "Authenticate Using Valid User And Password Return Success")]
@@ -55,20 +41,12 @@ namespace MyEcommerce.IntegrationTest.Controllers
             );
 
             var httpClientRequest = await _httpClient.PostAsync(_url, content);
-
             var response = await httpClientRequest.Content.ReadAsStringAsync();
-            //Token = GetToken(response);
+            
             _output.WriteLine(response);
 
             Assert.Equal(HttpStatusCode.OK, httpClientRequest.StatusCode);
         }
-
-        // private string GetToken(string response)
-        // {
-        //     var obj = JObject.Parse(response);
-
-        //     return obj.Property("token").Value.ToString();
-        // }
 
         [Fact(DisplayName = "Authenticate Using Invalid User Or Password Return Not Found")]
         public async Task Authenticate_UsingValidUserOrPassword_ReturnNotFound()

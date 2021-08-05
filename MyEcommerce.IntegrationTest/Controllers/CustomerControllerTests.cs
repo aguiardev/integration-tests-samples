@@ -1,12 +1,9 @@
 using AutoBogus;
-using Microsoft.AspNetCore.Mvc.Testing;
-using MyEcommerce.Api;
 using MyEcommerce.Api.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,18 +11,12 @@ using Xunit.Abstractions;
 
 namespace MyEcommerce.IntegrationTest.Controllers
 {
-    public class CustomerControllerTests
+    public class CustomerControllerTests : ControllerTestsBase
     {
-        private const string _url = "api/customer";
-        protected readonly WebApplicationFactory<Startup> _factory;
-        protected readonly HttpClient _httpClient;
-        protected readonly ITestOutputHelper _output;
-
-        public CustomerControllerTests(WebApplicationFactory<Startup> factory, ITestOutputHelper output)
+        public CustomerControllerTests(WebApplicationFactoryBase factory, ITestOutputHelper output) : base(factory, output)
         {
-            _factory = factory;
-            _httpClient = _factory.CreateClient();
-            _output = output;
+            Url = "api/customer";
+            SetRoles(new[] { "manager", "employee" });
         }
 
         [Fact(DisplayName = "Create Using Valid Customer Return Created")]
@@ -46,10 +37,11 @@ namespace MyEcommerce.IntegrationTest.Controllers
                 "application/json"
             );
 
-            //_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            UseToken();
 
-            var httpClientRequest = await _httpClient.PostAsync(_url, content);
-            _output.WriteLine(await httpClientRequest.Content.ReadAsStringAsync());
+            var httpClientRequest = await _client.PostAsync(Url, content);
+
+            WriteLineOutput(await httpClientRequest.Content.ReadAsStringAsync());
 
             Assert.Equal(HttpStatusCode.Created, httpClientRequest.StatusCode);
         }
