@@ -9,7 +9,7 @@ using MyEcommerce.Api.Services;
 namespace MyEcommerce.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/login")]
     public class UserController : ControllerBase
     {
         [HttpPost]
