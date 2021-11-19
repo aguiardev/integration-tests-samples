@@ -11,6 +11,7 @@ using MyEcommerce.IntegrationTest.Fixture;
 using MyEcommerce.IntegrationTest.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,13 +26,13 @@ namespace MyEcommerce.IntegrationTest.Controllers
 
         public CustomerControllerTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output)
         {
-            _databaseFixture = databaseFixture;
-            _databaseFixture.Seed();
             _logger = new Logger<CustomerController>(LoggerFactory);
-            _customerRepository = new CustomerRepository(_databaseFixture.Context);
+            _customerRepository = new CustomerRepository(databaseFixture.Context);
             _customerController = new CustomerController(_logger, _customerRepository);
+            _databaseFixture = databaseFixture;
+            databaseFixture.Seed();
 
-            output.WriteLine($"Database name: {_databaseFixture.DatabaseName}");
+            output.WriteLine($"Database name: {databaseFixture.DatabaseName}");
         }
 
         public void Dispose() => _databaseFixture.Reset();
@@ -59,8 +60,8 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Arrange
             const int idCustomer = 1;
 
-            var customerExpected = new Customer(
-                idCustomer, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com");
+            var customerExpected = _databaseFixture.Context.Customers
+                .FirstOrDefault(f => f.Id == idCustomer);
 
             //Act
             var response = await _customerController.GetById(customerExpected.Id);
@@ -79,7 +80,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Arrange
             const int idCustomer = 1;
 
-            var customerExpected = new Faker<Customer>(LOCALE_FAKER)
+            var customerExpected = new Faker<Customer>(Constants.LOCALE_FAKER)
                 .RuleFor(p => p.Id, () => idCustomer)
                 .RuleFor(p => p.Name, faker => faker.Person.FirstName)
                 .RuleFor(p => p.Email, faker => faker.Person.Email)
@@ -102,7 +103,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
         public async void GivenValidCustomer_WhenCreating_ShouldBeSuccess()
         {
             //Arrange
-            var customerExpected = new Faker<Customer>(LOCALE_FAKER)
+            var customerExpected = new Faker<Customer>(Constants.LOCALE_FAKER)
                 .RuleFor(p => p.Id, () => 0)
                 .RuleFor(p => p.Name, faker => faker.Person.FirstName)
                 .RuleFor(p => p.Email, faker => faker.Person.Email)
@@ -113,11 +114,11 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Act
             var response = await _customerController.Post(customerExpected);
 
+            //Assert
             customerExpected.Id = response
                 .As<CreatedAtActionResult>().Value
                 .As<Customer>().Id;
 
-            //Assert
             response.IsHttpStatusCodeCreated().Should().BeTrue();
 
             var customerActual = await _customerRepository.GetById(customerExpected.Id);
@@ -129,25 +130,19 @@ namespace MyEcommerce.IntegrationTest.Controllers
         public async void GivenValidCustomer_WhenGettingAll_ShouldBeSuccess()
         {
             //Arrange
-            var customerExpected = new List<Customer>()
-            {
-                new Customer(1, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com"),
-                new Customer(2, "André", new DateTime(1999, 05, 04), "andre@email.com"),
-                new Customer(3, "Nathaly", new DateTime(1995, 07, 18), "nathaly@email.com")
-            };
+            var customerExpected = _databaseFixture.Context.Customers.ToList();
 
             //Act
             var response = await _customerController.GetAll();
 
+            //Assert
             var customerActual = response
                 .As<OkObjectResult>().Value
                 .As<List<Customer>>();
 
-            //Assert
             response.IsHttpStatusCodeOK().Should().BeTrue();
 
             customerActual.Should().HaveCount(customerExpected.Count);
-            customerActual.ToExpectedObject().ShouldMatch(customerExpected);
         }
     }
 }

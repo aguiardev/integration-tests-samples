@@ -5,14 +5,14 @@ namespace MyEcommerce.IntegrationTest.Controllers
 {
     public class ControllerTestsBase
     {
-        public const string LOCALE_FAKER = "pt_BR";
-        public ITestOutputHelper Output;
-        
-        public LoggerFactory LoggerFactory = new();
+        public ITestOutputHelper Output { get; private set; }
+
+        public LoggerFactory LoggerFactory { get; private set; }
 
         public ControllerTestsBase(ITestOutputHelper output)
         {
             Output = output;
+            LoggerFactory = new LoggerFactory();
         }
     }
 }

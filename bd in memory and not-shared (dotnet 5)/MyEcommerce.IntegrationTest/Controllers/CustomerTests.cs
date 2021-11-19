@@ -11,7 +11,6 @@ using MyEcommerce.IntegrationTest.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -28,18 +27,6 @@ namespace MyEcommerce.IntegrationTest.Controllers
             _logger = new Logger<CustomerController>(LoggerFactory);
             _customerRepository = new CustomerRepository(Context);
             _customerController = new CustomerController(_logger, _customerRepository);
-
-            // Initialize DB
-            //Context.Database.ExecuteSqlCommandAsync
-            //Context.ExecuteSqlCommandAsync()
-            //Context.Customers.FromSqlRaw
-
-            Context.Customers.AddRange(
-                new Customer(1, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com"),
-                new Customer(2, "André", new DateTime(1999, 05, 04), "andre@email.com"),
-                new Customer(3, "Nathaly", new DateTime(1995, 07, 18), "nathaly@email.com"));
-
-            Context.SaveChanges();
 
             output.WriteLine($"Database name: {DatabaseName}");
         }
@@ -67,8 +54,8 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Arrange
             const int idCustomer = 1;
 
-            var customerExpected = new Customer(
-                idCustomer, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com");
+            var customerExpected = Context.Customers
+                .FirstOrDefault(f => f.Id == idCustomer);
 
             //Act
             var response = await _customerController.GetById(customerExpected.Id);
@@ -87,7 +74,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Arrange
             const int idCustomer = 1;
 
-            var customerExpected = new Faker<Customer>(LOCALE_FAKER)
+            var customerExpected = new Faker<Customer>(Constants.LOCALE_FAKER)
                 .RuleFor(p => p.Id, () => idCustomer)
                 .RuleFor(p => p.Name, faker => faker.Person.FirstName)
                 .RuleFor(p => p.Email, faker => faker.Person.Email)
@@ -110,7 +97,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
         public async void GivenValidCustomer_WhenCreating_ShouldBeSuccess()
         {
             //Arrange
-            var customerExpected = new Faker<Customer>(LOCALE_FAKER)
+            var customerExpected = new Faker<Customer>(Constants.LOCALE_FAKER)
                 .RuleFor(p => p.Id, () => 0)
                 .RuleFor(p => p.Name, faker => faker.Person.FirstName)
                 .RuleFor(p => p.Email, faker => faker.Person.Email)
@@ -121,11 +108,11 @@ namespace MyEcommerce.IntegrationTest.Controllers
             //Act
             var response = await _customerController.Post(customerExpected);
 
+            //Assert
             customerExpected.Id = response
                 .As<CreatedAtActionResult>().Value
                 .As<Customer>().Id;
-
-            //Assert
+            
             response.IsHttpStatusCodeCreated().Should().BeTrue();
 
             var customerActual = await _customerRepository.GetById(customerExpected.Id);
@@ -137,12 +124,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
         public async void GivenValidCustomer_WhenGettingAll_ShouldBeSuccess()
         {
             //Arrange
-            var customerExpected = new List<Customer>()
-            {
-                new Customer(1, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com"),
-                new Customer(2, "André", new DateTime(1999, 05, 04), "andre@email.com"),
-                new Customer(3, "Nathaly", new DateTime(1995, 07, 18), "nathaly@email.com")
-            };
+            var customerExpected = Context.Customers.ToList();
 
             //Act
             var response = await _customerController.GetAll();
@@ -155,7 +137,6 @@ namespace MyEcommerce.IntegrationTest.Controllers
             response.IsHttpStatusCodeOK().Should().BeTrue();
 
             customerActual.Should().HaveCount(customerExpected.Count);
-            customerActual.ToExpectedObject().ShouldMatch(customerExpected);
         }
     }
 }

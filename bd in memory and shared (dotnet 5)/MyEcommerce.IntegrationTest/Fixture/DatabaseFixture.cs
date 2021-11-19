@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Bogus;
+using Microsoft.EntityFrameworkCore;
 using MyEcommerce.Api.Entities;
 using MyEcommerce.Api.Repositories;
 using System;
@@ -28,11 +29,16 @@ namespace MyEcommerce.IntegrationTest.Fixture
        
         public void Seed()
         {
-            Context.Customers.AddRange(
-                new Customer(1, "Tiago", new DateTime(2000, 01, 05), "tiago@email.com"),
-                new Customer(2, "André", new DateTime(1999, 05, 04), "andre@email.com"),
-                new Customer(3, "Nathaly", new DateTime(1995, 07, 18), "nathaly@email.com"));
+            var ids = 1;
+            var customersFake = new Faker<Customer>(Constants.LOCALE_FAKER)
+                .RuleFor(p => p.Id, () => ids++)
+                .RuleFor(p => p.Name, faker => faker.Person.FirstName)
+                .RuleFor(p => p.Email, faker => faker.Person.Email)
+                .RuleFor(p => p.Birth, faker => faker.Date.Between(
+                    new DateTime(1950, 1, 1), new DateTime(2002, 12, 31)))
+                .Generate(1000);
 
+            Context.Customers.AddRange(customersFake);
             Context.SaveChanges();
         }
     }
