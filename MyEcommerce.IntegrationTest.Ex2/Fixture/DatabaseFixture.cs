@@ -11,7 +11,7 @@ namespace MyEcommerce.IntegrationTest.Fixture
     public class DatabaseFixture
     {
         public string DatabaseName { get; private set; }
-        public MyEcommerceContext Context { get; private set; }
+        public MyEcommerceContext DbContext { get; private set; }
 
         public DatabaseFixture()
         {
@@ -21,11 +21,11 @@ namespace MyEcommerce.IntegrationTest.Fixture
                 .UseInMemoryDatabase(DatabaseName)
                 .Options;
 
-            Context = new MyEcommerceContext(options);
+            DbContext = new MyEcommerceContext(options);
         }
 
         public void Reset()
-            => Context.Customers.RemoveRange(Context.Customers);
+            => DbContext.Customers.RemoveRange(DbContext.Customers);
        
         public void Seed()
         {
@@ -36,10 +36,10 @@ namespace MyEcommerce.IntegrationTest.Fixture
                 .RuleFor(p => p.Email, faker => faker.Person.Email)
                 .RuleFor(p => p.Birth, faker => faker.Date.Between(
                     new DateTime(1950, 1, 1), new DateTime(2002, 12, 31)))
-                .Generate(1000);
+                .Generate(10);
 
-            Context.Customers.AddRange(customersFake);
-            Context.SaveChanges();
+            DbContext.Customers.AddRange(customersFake);
+            DbContext.SaveChanges();
         }
     }
 }

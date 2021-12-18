@@ -16,7 +16,7 @@ namespace MyEcommerce.IntegrationTest.Controllers
 
         public string DatabaseName { get; private set; }
         
-        public MyEcommerceContext Context { get; private set; }
+        public MyEcommerceContext DbContext { get; private set; }
 
         public ControllerTestsBase(ITestOutputHelper output)
         {
@@ -26,14 +26,14 @@ namespace MyEcommerce.IntegrationTest.Controllers
                 .UseInMemoryDatabase(DatabaseName)
                 .Options;
 
-            Context = new MyEcommerceContext(options);
+            DbContext = new MyEcommerceContext(options);
             Output = output;
             LoggerFactory = new LoggerFactory();
 
             Seed();
         }
 
-        public void Dispose() => Context.Customers.RemoveRange(Context.Customers);
+        public void Dispose() => DbContext.Customers.RemoveRange(DbContext.Customers);
 
         public void Seed()
         {
@@ -46,8 +46,8 @@ namespace MyEcommerce.IntegrationTest.Controllers
                     new DateTime(1950, 1, 1), new DateTime(2002, 12, 31)))
                 .Generate(10);
 
-            Context.Customers.AddRange(customersFake);
-            Context.SaveChanges();
+            DbContext.Customers.AddRange(customersFake);
+            DbContext.SaveChanges();
         }
     }
 }
